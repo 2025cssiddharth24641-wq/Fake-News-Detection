@@ -267,7 +267,7 @@ def _balanced_accuracy_from_preds(y_true: np.ndarray, preds: np.ndarray) -> floa
 
 
 def calibrate_thresholds(y_val: np.ndarray, val_probs: np.ndarray) -> tuple[float, float, dict]:
-    best = None
+    best: float | None = None
     best_info = None
 
     for threshold in np.linspace(0.3, 0.7, 81):
@@ -275,7 +275,11 @@ def calibrate_thresholds(y_val: np.ndarray, val_probs: np.ndarray) -> tuple[floa
         f1 = float(f1_score(y_val, preds, zero_division=0))
         bal_acc = _balanced_accuracy_from_preds(y_val, preds)
         real_as_fake_rate = float(np.mean((y_val == 1) & (preds == 0)))
-        score = (f1, bal_acc, -real_as_fake_rate)
+        # Weighted scalar score: F1 (0.45) and balanced accuracy (0.40) reward
+        # overall classification quality; the 2.0 multiplier on real_as_fake_rate
+        # applies a 5× stronger penalty for mislabelling genuine news as fake
+        # compared to a plain equal-weight average, prioritising user trust.
+        score = f1 * 0.45 + bal_acc * 0.40 - real_as_fake_rate * 2.0
         if best is None or score > best:
             best = score
             best_info = {
