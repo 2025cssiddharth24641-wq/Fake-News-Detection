@@ -263,14 +263,24 @@ def predict(payload: PredictRequest) -> PredictResponse:
     confidence = float(np.clip(base_confidence - (risk_score * 0.25), 0.0, 0.95))
 
     unclear_margin = abs(prob_real_combined - 0.5)
-    if unclear_margin < 0.08:
+    # 0.12 margin (±12 pp from 0.5) is wider than the previous 0.08 so that
+    # borderline predictions — where the model and rule scores nearly tie —
+    # are surfaced as "Needs Verification" instead of a hard FAKE verdict.
+    if unclear_margin < 0.12:
         prediction = "Needs Verification"
         confidence = min(confidence, 0.69)
         guidance = "Signals are mixed. Verify with trusted sources before accepting this claim."
-    elif base_prediction == "FAKE" and prob_real_model < 0.2 and risk_score <= 0.16 and not extreme_language and (factual_score >= 0.28 or len(cleaned.split()) >= 7):
+    # Fallback for factual-looking text that the model tentatively labels FAKE:
+    # - prob_real_model < 0.40: model has some lean towards fake but is not
+    #   confident enough to override factual signals.
+    # - risk_score <= 0.20: low rule-based risk (no extreme-claim language,
+    #   few ALL-CAPS words, etc.).
+    # - factual_score >= 0.28 OR ≥7 cleaned tokens: structural cues (dates,
+    #   numbers, authority words, sentence count) suggest factual reporting.
+    elif base_prediction == "FAKE" and prob_real_model < 0.40 and risk_score <= 0.20 and not extreme_language and (factual_score >= 0.28 or len(cleaned.split()) >= 7):
         prediction = "Needs Verification"
         confidence = min(confidence, 0.64)
-        guidance = "This text appears factual, but the model strongly disagrees. Likely out-of-domain input: verify with multiple trusted sources."
+        guidance = "This text appears factual, but the model is uncertain. Verify with multiple trusted sources before accepting or rejecting this claim."
     elif base_prediction == "FAKE" and extreme_language and confidence >= 0.65:
         prediction = "FAKE"
         guidance = "Likely fake. The text includes extreme-claim language. Cross-check with reliable outlets before sharing."
