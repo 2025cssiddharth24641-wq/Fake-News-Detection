@@ -96,7 +96,7 @@ class ModelBundle:
 
 _EXTREME_PATTERNS = [
     r"\bcure all diseases\b",
-    r"\bcure\b.*\bdisease",
+    r"\b(miracle|instant|guaranteed)\s+cure\b.*\bdisease",
     r"\bbreaking shocking\b",
     r"\b100\s*%\s*guaranteed\b",
     r"\bmiracle cure\b",
@@ -202,9 +202,9 @@ def reliability_from_confidence(confidence: float) -> str:
     return "LOW"
 
 
-def combine_scores(prob_real_model: float, risk_score: float) -> float:
+def combine_scores(prob_real_model: float, risk_score: float, factual_score: float = 0.0) -> float:
     adjusted_real_from_rules = 1.0 - risk_score
-    combined_real = (0.82 * prob_real_model) + (0.18 * adjusted_real_from_rules)
+    combined_real = (0.72 * prob_real_model) + (0.16 * adjusted_real_from_rules) + (0.12 * factual_score)
     return float(np.clip(combined_real, 0.02, 0.98))
 
 
@@ -251,7 +251,7 @@ def predict(payload: PredictRequest) -> PredictResponse:
     risk_score = rule_based_risk_score(text, cleaned)
     factual_score = factual_context_score(text, cleaned)
     extreme_language = has_extreme_claim_language(text)
-    prob_real_combined = combine_scores(prob_real_model, risk_score)
+    prob_real_combined = combine_scores(prob_real_model, risk_score, factual_score)
 
     if prob_real_combined >= bundle.threshold:
         base_prediction = "REAL"
@@ -263,11 +263,11 @@ def predict(payload: PredictRequest) -> PredictResponse:
     confidence = float(np.clip(base_confidence - (risk_score * 0.25), 0.0, 0.95))
 
     unclear_margin = abs(prob_real_combined - 0.5)
-    if unclear_margin < 0.08:
+    if unclear_margin < 0.10:
         prediction = "Needs Verification"
         confidence = min(confidence, 0.69)
         guidance = "Signals are mixed. Verify with trusted sources before accepting this claim."
-    elif base_prediction == "FAKE" and prob_real_model < 0.2 and risk_score <= 0.16 and not extreme_language and (factual_score >= 0.28 or len(cleaned.split()) >= 7):
+    elif base_prediction == "FAKE" and prob_real_model < 0.35 and risk_score <= 0.20 and not extreme_language and (factual_score >= 0.25 or len(cleaned.split()) >= 7):
         prediction = "Needs Verification"
         confidence = min(confidence, 0.64)
         guidance = "This text appears factual, but the model strongly disagrees. Likely out-of-domain input: verify with multiple trusted sources."

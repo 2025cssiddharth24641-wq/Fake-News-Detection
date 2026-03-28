@@ -267,17 +267,17 @@ def _balanced_accuracy_from_preds(y_true: np.ndarray, preds: np.ndarray) -> floa
 
 
 def calibrate_thresholds(y_val: np.ndarray, val_probs: np.ndarray) -> tuple[float, float, dict]:
-    best = None
+    best_score = None
     best_info = None
 
-    for threshold in np.linspace(0.3, 0.7, 81):
+    for threshold in np.linspace(0.25, 0.70, 91):
         preds = (val_probs >= threshold).astype(np.int32)
         f1 = float(f1_score(y_val, preds, zero_division=0))
         bal_acc = _balanced_accuracy_from_preds(y_val, preds)
         real_as_fake_rate = float(np.mean((y_val == 1) & (preds == 0)))
-        score = (f1, bal_acc, -real_as_fake_rate)
-        if best is None or score > best:
-            best = score
+        score = f1 * 0.50 + bal_acc * 0.30 + (1.0 - real_as_fake_rate) * 0.20
+        if best_score is None or score > best_score:
+            best_score = score
             best_info = {
                 "threshold": float(threshold),
                 "f1": f1,
