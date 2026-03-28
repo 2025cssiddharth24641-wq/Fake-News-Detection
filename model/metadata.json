@@ -1,0 +1,13 @@
+{
+  "max_len": 220,
+  "max_words": 15000,
+  "embedding_dim": 96,
+  "batch_size": 128,
+  "full_batch": false,
+  "recurrent_dropout": 0.0,
+  "threshold": 0.585,
+  "uncertainty_threshold": 0.9,
+  "mix_extra_data": true,
+  "recent_ratio": 0.35,
+  "val_size": 0.15
+}

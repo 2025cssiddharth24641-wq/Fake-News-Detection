@@ -1,0 +1,28 @@
+{
+  "accuracy": 0.994969256567915,
+  "precision": 0.9930400890868597,
+  "recall": 0.9969256567915036,
+  "f1": 0.994979079497908,
+  "report": "              precision    recall  f1-score   support\n\n           0       1.00      0.99      0.99      3578\n           1       0.99      1.00      0.99      3578\n\n    accuracy                           0.99      7156\n   macro avg       0.99      0.99      0.99      7156\nweighted avg       0.99      0.99      0.99      7156\n",
+  "confusion_matrix": [
+    [
+      3553,
+      25
+    ],
+    [
+      11,
+      3567
+    ]
+  ],
+  "real_as_fake_rate": 0.0015371716042481833,
+  "train_size": 24328,
+  "val_size": 4294,
+  "test_size": 7156,
+  "threshold": 0.585,
+  "uncertainty_threshold": 0.9,
+  "val_calibration": {
+    "val_f1": 0.996742671009772,
+    "val_balanced_accuracy": 0.9967396367023753,
+    "val_real_as_fake_rate": 0.0011644154634373545
+  }
+}

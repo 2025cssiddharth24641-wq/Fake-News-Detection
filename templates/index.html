@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VeriLens | Fake News Detection AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <main class="container">
+        <header class="hero-section">
+            <div class="glow-circle"></div>
+            <h1 class="hero-title">Detect Fake News</h1>
+            <p class="hero-subtitle">Powered by advanced NLP & deep learning</p>
+        </header>
+
+        <section class="input-section">
+            <textarea id="newsInput" class="glass-input" placeholder="Paste your news article, claim, or statement here..."></textarea>
+            <div class="meta-row">
+                <span id="charCount" class="char-count">0 / 50,000</span>
+            </div>
+
+            <div class="button-group">
+                <button id="analyzeBtn" class="btn btn-primary">⚡ Analyze Now</button>
+                <button id="clearBtn" class="btn btn-secondary">✕ Clear</button>
+            </div>
+
+            <div id="loader" class="loader hidden">
+                <div class="spinner"></div>
+                <span>Analyzing with AI model...</span>
+            </div>
+
+            <div id="messageBox" class="alert hidden"></div>
+        </section>
+
+        <article id="resultCard" class="result-card hidden">
+            <div class="result-header">
+                <span class="result-label">Result</span>
+                <span id="predictionBadge" class="badge badge-default">—</span>
+            </div>
+            <div class="confidence-section">
+                <p id="confidenceText" class="confidence-text">Confidence: 0%</p>
+                <div class="confidence-bar">
+                    <div id="confidenceBar" class="confidence-fill"></div>
+                </div>
+            </div>
+            <p id="guidanceText" class="guidance-text"></p>
+        </article>
+
+        <section class="history-section">
+            <div class="history-header">
+                <h2 class="history-title">Recent Analyses</h2>
+                <button id="clearHistoryBtn" class="btn btn-icon">🗑</button>
+            </div>
+            <div id="historyList" class="history-grid"></div>
+        </section>
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
